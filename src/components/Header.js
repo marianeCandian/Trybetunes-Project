@@ -20,7 +20,7 @@ class Header extends React.Component {
   getUserName = async () => {
     const name = await getUser();
     this.setState({
-      user: name.user,
+      user: name.name,
       isLoading: false,
     });
   };
@@ -33,7 +33,6 @@ class Header extends React.Component {
     return (
       <div>
         <header data-testid="header-component">
-          <p data-testid="header-user-name">{ user }</p>
           <nav>
             <Link
               to="/search"
@@ -48,6 +47,7 @@ class Header extends React.Component {
               data-testid="link-to-profile"
             />
           </nav>
+          <p data-testid="header-user-name">{ user }</p>
         </header>
       </div>
     );
