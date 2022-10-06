@@ -1,19 +1,37 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { addSong } from '../services/favoriteSongsAPI';
+import { addSong, getFavoriteSongs, removeSong } from '../services/favoriteSongsAPI';
 import Loading from '../pages/Loading';
 
 class MusiCard extends React.Component {
   state = {
     loading: false,
-    favoritas: [],
+    favoritas: false,
+  };
+
+  componentDidMount() {
+    this.backFavorites();
+  }
+
+  backFavorites = async () => {
+    const { trackId } = this.props;
+    const response = await getFavoriteSongs();
+    response.some((sav) => sav.trackId === trackId && this.setState({
+      favoritas: sav,
+    }));
   };
 
   clickCheckBox = async ({ target }) => {
     const { musicas } = this.props;
-    const { favoritas } = this.state;
-    this.setState({ loading: true, favoritas: [...favoritas, target.value] });
-    await addSong(musicas);
+    this.setState({
+      favoritas: target.checked,
+      loading: true,
+    });
+    if (target.checked) {
+      await addSong(musicas);
+    } else {
+      await removeSong(musicas);
+    }
     this.setState({ loading: false });
   };
 
@@ -32,14 +50,13 @@ class MusiCard extends React.Component {
                 <code>audio</code>
                 .
               </audio>
-              <label htmlFor="favorite">
+              <label htmlFor={ trackId }>
                 Favorita
                 <input
                   type="checkbox"
-                  id="favorite"
+                  id={ trackId }
                   data-testid={ `checkbox-music-${trackId}` }
-                  value={ trackId }
-                  checked={ favoritas.some((favorita) => Number(favorita) === trackId) }
+                  checked={ favoritas }
                   onChange={ this.clickCheckBox }
                 />
               </label>
@@ -53,6 +70,7 @@ MusiCard.propTypes = {
   trackName: PropTypes.string,
   previewUrl: PropTypes.string,
   trackId: PropTypes.number,
+  musicas: PropTypes.shape({}),
 }.isRequired;
 
 export default MusiCard;
